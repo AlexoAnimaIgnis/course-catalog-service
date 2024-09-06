@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
+
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.9.25'
     id 'org.jetbrains.kotlin.plugin.spring' version '1.9.25'
@@ -42,4 +44,12 @@ kotlin {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+sourceSets {
+    test {
+       java {
+           srcDirs("src/test/intg", "src/test/unit")
+       }
+    }
 }
