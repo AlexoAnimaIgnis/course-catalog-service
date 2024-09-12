@@ -48,11 +48,15 @@ class CourseControllerUnitTest {
     fun addCourse_validation() {
         val courseDto = CourseDto(null, "", "")
 
-        val savedCourseDto = webTestClient.post()
+        val errorResponse = webTestClient.post()
             .uri("/v1/courses")
             .bodyValue(courseDto)
             .exchange()
             .expectStatus().isBadRequest
+            .expectBody(String::class.java)
+            .returnResult()
+            .responseBody
+        assertEquals("courseDto.category must not be blank, courseDto.name must not be blank", errorResponse)
     }
 
     @Test
