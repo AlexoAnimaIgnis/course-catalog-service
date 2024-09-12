@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.test.web.reactive.server.WebTestClient
+import java.lang.RuntimeException
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
@@ -60,6 +61,24 @@ class CourseControllerUnitTest {
     }
 
     @Test
+    fun addCourse_runTimeException() {
+        val courseDto = CourseDto(null, "Build Restful API using Spring Boot and Kotlin", "Alexo")
+
+        val errorMessage = "Unexpected Error occurred"
+        every { courseServiceMock.addCourse(any()) } throws RuntimeException(errorMessage)
+
+        val errorResponse = webTestClient.post()
+            .uri("/v1/courses")
+            .bodyValue(courseDto)
+            .exchange()
+            .expectStatus().is5xxServerError
+            .expectBody(String::class.java)
+            .returnResult()
+            .responseBody
+        assertEquals(errorMessage, errorResponse)
+    }
+
+    @Test
     fun retrieveAllCourses() {
 
         every { courseServiceMock.retrieveAllCourses() }.returnsMany(
@@ -92,8 +111,10 @@ class CourseControllerUnitTest {
             "Build RestFul APis using SpringBoot and Kotlin", "Development"
         )
 
-        every { courseServiceMock.updateCourse(any(), any()) } returns courseDTO(id = 100,
-            name="Build RestFul APis using SpringBoot and Kotlin2")
+        every { courseServiceMock.updateCourse(any(), any()) } returns courseDTO(
+            id = 100,
+            name = "Build RestFul APis using SpringBoot and Kotlin2"
+        )
 
         val updatedCourseDto = Course(
             null,
@@ -113,7 +134,7 @@ class CourseControllerUnitTest {
     }
 
     @Test
-    fun deleteCourse(){
+    fun deleteCourse() {
 
         every { courseServiceMock.deleteCourse(any()) } just runs
 
