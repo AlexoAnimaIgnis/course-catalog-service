@@ -45,6 +45,17 @@ class CourseControllerUnitTest {
     }
 
     @Test
+    fun addCourse_validation() {
+        val courseDto = CourseDto(null, "", "")
+
+        val savedCourseDto = webTestClient.post()
+            .uri("/v1/courses")
+            .bodyValue(courseDto)
+            .exchange()
+            .expectStatus().isBadRequest
+    }
+
+    @Test
     fun retrieveAllCourses() {
 
         every { courseServiceMock.retrieveAllCourses() }.returnsMany(
