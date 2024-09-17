@@ -25,8 +25,13 @@ class CourseService(val courseRepository: CourseRepository) {
         }
     }
 
-    fun retrieveAllCourses(): List<CourseDto> {
-        return courseRepository.findAll().map {
+    fun retrieveAllCourses(courseName: String?): List<CourseDto> {
+
+        val courses = courseName?.let {
+            courseRepository.findCoursesByName(courseName)
+        } ?: courseRepository.findAll()
+
+        return courses.map {
             CourseDto(it.id, it.name, it.category)
         }
     }
@@ -34,7 +39,7 @@ class CourseService(val courseRepository: CourseRepository) {
     fun updateCourse(courseId: Int, courseDto: CourseDto): CourseDto {
         val existingCourse = courseRepository.findById(courseId)
 
-        return if(existingCourse.isPresent) {
+        return if (existingCourse.isPresent) {
             existingCourse.get()
                 .let {
                     it.name = courseDto.name
@@ -50,7 +55,7 @@ class CourseService(val courseRepository: CourseRepository) {
     fun deleteCourse(courseId: Int) {
         val existingCourse = courseRepository.findById(courseId)
 
-        return if(existingCourse.isPresent) {
+        return if (existingCourse.isPresent) {
             existingCourse.get()
                 .let {
                     courseRepository.deleteById(courseId)
