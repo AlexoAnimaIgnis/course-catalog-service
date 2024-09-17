@@ -11,6 +11,7 @@ import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWeb
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
+import org.springframework.web.util.UriComponentsBuilder
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
@@ -34,7 +35,7 @@ class CourseControllerIntgTest {
 
     @Test
     fun addCourse() {
-        val courseDto = CourseDto(null, "Build Restful API using Spring Boot and Kotlin","Alexo")
+        val courseDto = CourseDto(null, "Build Restful API using Spring Boot and Kotlin", "Alexo")
 
         val savedCourseDto = webTestClient.post()
             .uri("/v1/courses")
@@ -63,14 +64,37 @@ class CourseControllerIntgTest {
     }
 
     @Test
-    fun updateCourse(){
+    fun retrieveAllCoursesByName() {
 
-        val course = Course(null,
-            "Build RestFul APis using SpringBoot and Kotlin", "Development")
+        val uri =UriComponentsBuilder.fromUriString("/v1/courses")
+            .queryParam("course_name", "SpringBoot")
+            .toUriString()
+
+        val courseDtos = webTestClient
+            .get()
+            .uri(uri)
+            .exchange()
+            .expectStatus().isOk
+            .expectBodyList(CourseDto::class.java)
+            .returnResult()
+            .responseBody
+
+        assertEquals(2, courseDtos!!.size)
+    }
+
+    @Test
+    fun updateCourse() {
+
+        val course = Course(
+            null,
+            "Build RestFul APis using SpringBoot and Kotlin", "Development"
+        )
         courseRepository.save(course)
 
-        val updatedCourseDto = Course(null,
-            "Build RestFul APis using SpringBoot and Kotlin2", "Development")
+        val updatedCourseDto = Course(
+            null,
+            "Build RestFul APis using SpringBoot and Kotlin2", "Development"
+        )
 
         val updatedCourse = webTestClient.put()
             .uri("/v1/courses/{course_id}", course.id)
@@ -85,9 +109,11 @@ class CourseControllerIntgTest {
     }
 
     @Test
-    fun deleteCourse(){
-        val course = Course(null,
-            "Build RestFul APis using SpringBoot and Kotlin", "Development")
+    fun deleteCourse() {
+        val course = Course(
+            null,
+            "Build RestFul APis using SpringBoot and Kotlin", "Development"
+        )
         courseRepository.save(course)
 
         val updatedCourse = webTestClient.delete()
