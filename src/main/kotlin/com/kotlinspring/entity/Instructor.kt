@@ -11,10 +11,11 @@ import jakarta.persistence.Table
 @Entity
 @Table(name = "INSTRUCTORS")
 data class Instructor(
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     val id: Int?,
-    val name: String,
+    var name: String,
     // to connect to courseEntity
     @OneToMany(
         mappedBy = "instructor",
