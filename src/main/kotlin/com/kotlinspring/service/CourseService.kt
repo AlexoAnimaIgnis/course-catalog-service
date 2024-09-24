@@ -19,19 +19,19 @@ class CourseService(
     fun addCourse(courseDto: CourseDto): CourseDto {
         val instructorOpt = instructorService.findByInstructorId(courseDto.instructorId!!)
 
-        if(!instructorOpt.isPresent) {
+        if (!instructorOpt.isPresent) {
             throw InstructorNotValidException("instructor not valid ${courseDto.instructorId}")
         }
 
         val courseEntity = courseDto.let {
-            Course(null, it.name, it.category)
+            Course(null, it.name, it.category, instructorOpt.get())
         }
         courseRepository.save(courseEntity)
 
         logger.info("Saved course is $courseEntity")
 
         return courseEntity.let {
-            CourseDto(it.id, it.name, it.category)
+            CourseDto(it.id, it.name, it.category, it.instructor!!.id)
         }
     }
 
